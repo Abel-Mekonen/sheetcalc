@@ -1,0 +1,31 @@
+# build output
+build/
+*.o
+*.a
+*.so
+*.dylib
+*.d
+*.dSYM/
+
+# binaries
+*.exe
+*.out
+test_basic
+test_formula
+test_eval
+
+# editor / OS
+*.swp
+*~
+.DS_Store
+.vscode/
+.idea/
+
+# debug / sanitizer logs
+*.log
+asan.*
+
+# poc / test harness (not shipped)
+pocs/
+tools/gen_pocs.c
+tools/run_poc.c
