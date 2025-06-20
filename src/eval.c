@@ -198,7 +198,7 @@ static void eval_clear_memo(ScEvalCtx *ctx)
 static void eval_seed_scope_poc(ScWorkbook *wb)
 {
     ScEvalCtx *ctx;
-    ScVal seed;
+    ScVal seed = {0};
     int i;
 
     if (!wb || wb->nsheets <= 0 || !wb->sheets[0].name ||
@@ -286,8 +286,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
             if (row + 1 < sh->nrows) {
                 ScCell *adj;
                 if (sci_cell_at(sh, row + 1, col, &adj) == SC_OK && adj->formula && adj->dirty) {
-                    ScVal tmp;
-                    sc_val_nil(&tmp);
+                    ScVal tmp = {0};
                     sc_eval_node(ctx, adj->formula->root, &tmp);
                     sci_memo_put(ctx, SC_MEMO_KEY((uintptr_t)sh, row + 1, col), &tmp);
                     sc_val_free(&tmp);
@@ -334,7 +333,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
         for (r = lo_r; r <= hi_r && rc == SC_OK; r++) {
             for (c = lo_c; c <= hi_c && rc == SC_OK; c++) {
                 ScNode refnd;
-                ScVal cv;
+                ScVal cv = {0};
 
                 memset(&refnd, 0, sizeof(refnd));
                 refnd.kind = SC_NODE_REF;
@@ -372,13 +371,10 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
 
     case SC_NODE_BINARY:
     case SC_NODE_CONCAT: {
-        ScVal lhs_val, rhs_val;
+        ScVal lhs_val = {0}, rhs_val = {0};
         int op = node->kind == SC_NODE_CONCAT ? SC_OP_CONCAT : node->u.binary.op;
         double a, b, result;
         int cmp, truth;
-
-        sc_val_nil(&lhs_val);
-        sc_val_nil(&rhs_val);
 
         rc = sc_eval_node(ctx, node->u.binary.lhs, &lhs_val);
         if (rc != SC_OK) goto bin_out;
@@ -465,10 +461,9 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
     }
 
     case SC_NODE_UNARY: {
-        ScVal operand;
+        ScVal operand = {0};
         double n;
 
-        sc_val_nil(&operand);
         rc = sc_eval_node(ctx, node->u.unary.operand, &operand);
         if (rc != SC_OK) break;
 
@@ -500,8 +495,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
         ScVal *argv = ctx->stack + base;
 
         for (i = 0; i < node->u.call.nargs; i++) {
-            ScVal arg;
-            sc_val_nil(&arg);
+            ScVal arg = {0};
             rc = sc_eval_node(ctx, node->u.call.args[i], &arg);
             if (rc != SC_OK) { sc_val_free(&arg); goto call_cleanup; }
             rc = sc_eval_push(ctx, &arg);
@@ -527,7 +521,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
         ScNode fake;
 
         if (sci_scope_find(ctx, node->u.name.name, &bound) == SC_OK) {
-            ScVal track;
+            ScVal track = {0};
             sc_val_num(&track, 1.0);
             sci_scope_push(ctx, "__read__", &track);
             sc_val_free(&track);
@@ -555,8 +549,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
     }
 
     case SC_NODE_IF: {
-        ScVal cond;
-        sc_val_nil(&cond);
+        ScVal cond = {0};
         rc = sc_eval_node(ctx, node->u.if_expr.cond, &cond);
         if (rc != SC_OK) break;
         if (sc_val_is_truthy(&cond))
@@ -576,8 +569,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
         int i;
 
         for (i = 0; i < node->u.list.count; i++) {
-            ScVal ev;
-            sc_val_nil(&ev);
+            ScVal ev = {0};
             rc = sc_eval_node(ctx, node->u.list.elems[i], &ev);
             if (rc != SC_OK) { sc_val_free(&ev); break; }
             if (n >= cap) {
@@ -598,8 +590,7 @@ int sc_eval_node(ScEvalCtx *ctx, ScNode *node, ScVal *out)
             break;
         }
         if (lead && n > 1 && lead->type == SC_VAL_NUM) {
-            ScVal anchor;
-            sc_val_nil(&anchor);
+            ScVal anchor = {0};
             rc = sc_val_copy(&anchor, lead);
             if (rc == SC_OK) {
                 sc_val_free(&elems[0]);
@@ -650,10 +641,9 @@ static int eval_one_sheet(ScWorkbook *wb, ScSheet *sh, int idx)
 
     for (i = 0; i < n; i++) {
         ScCell *cl = &sh->cells[i];
-        ScVal res;
+        ScVal res = {0};
 
         if (!cl->formula || !cl->dirty) continue;
-        sc_val_nil(&res);
         rc = sc_eval_node(ctx, cl->formula->root, &res);
         if (rc != SC_OK) { sc_val_free(&res); if (ctx->had_error) break; continue; }
         sc_val_free(&cl->value);

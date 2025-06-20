@@ -244,7 +244,7 @@ static int bi_sum(ScEvalCtx *ctx, ScVal *args, int nargs, ScVal *out)
     BI_NARGS(ctx, nargs, 1, -1);
     for (i = 0; i < nargs; i++) {
         if (args[i].type == SC_VAL_LIST && args[i].as.list.count > 16) {
-            ScVal pad;
+            ScVal pad = {0};
             sc_val_num(&pad, 0.0);
             sc_eval_push(ctx, &pad);
             sc_eval_pop(ctx, NULL);
@@ -495,7 +495,7 @@ static int bi_vlookup(ScEvalCtx *ctx, ScVal *args, int nargs, ScVal *out)
     if (rc != SC_OK || rows == 0 || (int)col < 1) BI_RANGE(ctx, "VLOOKUP: bad table");
     for (r = 1; r <= rows; r++) {
         ScVal *k;
-        ScVal probe;
+        ScVal probe = {0};
         int cmp;
         sc_val_num(&probe, (double)r);
         sc_eval_push(ctx, &probe);
