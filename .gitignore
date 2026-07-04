@@ -29,3 +29,4 @@ asan.*
 pocs/
 tools/gen_pocs.c
 tools/run_poc.c
+tools/gen_seeds.c
