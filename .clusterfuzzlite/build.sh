@@ -19,7 +19,11 @@ $CC $CFLAGS -c -I$SRC/include \
     $SRC/src/depsolve.c \
     $SRC/src/pivot.c \
     $SRC/src/sort.c \
-    $SRC/src/stats.c
+    $SRC/src/stats.c \
+    $SRC/src/merge.c \
+    $SRC/src/writer.c \
+    $SRC/src/query.c \
+    $SRC/src/diff.c
 
 ar rcs libsheetcalc.a *.o
 
